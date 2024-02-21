@@ -26,10 +26,12 @@ public class PlayerMovement : MonoBehaviour
     public bool IsLeftWalled;
     public bool IsRightWalled;
     public bool GotShield ;
+    public bool isWallJumping;
 
 
     void Start()
     {
+        isWallJumping = false;
         GotShield = false;
         respawnPoint = transform.position;
 
@@ -63,14 +65,21 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKey(leftKey))
         {
-            transform.Translate(Vector2.left * moovSpeed * Time.deltaTime);
+            if (IsLeftWalled == false && isWallJumping == false)
+            {
+                transform.Translate(Vector2.left * moovSpeed * Time.deltaTime);
+            }
         }
         if (Input.GetKey(rightKey))
         {
-            transform.Translate(Vector2.right * moovSpeed * Time.deltaTime);
+            if (IsRightWalled == false && isWallJumping == false)
+            {
+                transform.Translate(Vector2.right * moovSpeed * Time.deltaTime);
+            }
         }
         if (IsGrounded)
         {
+            isWallJumping = false;
             if (Input.GetKeyDown(upKey))
             {
                 rgbd.AddForce(Vector2.up * jumpForce);
@@ -80,6 +89,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (Input.GetKeyDown(upKey))
             {
+                isWallJumping = true;
                 rgbd.AddForce(Vector2.up * jumpForce * 0.75f);
                 rgbd.AddForce(Vector2.right * jumpForce);
             }       
@@ -88,6 +98,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if(Input.GetKeyDown(upKey))
             {
+                isWallJumping = true;
                 rgbd.AddForce(Vector2.up * jumpForce * 0.75f);
                 rgbd.AddForce(Vector2.left * jumpForce);
             }
