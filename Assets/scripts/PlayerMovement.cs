@@ -65,8 +65,8 @@ public class PlayerMovement : MonoBehaviour
         isWalking = false;
         Move = Input.GetAxis("Horizontal");
         IsGrounded = Physics2D.OverlapArea(LeftCheckGrounbed.position, RightCheckGrounded.position);
-        IsRightWalled = Physics2D.OverlapArea(TopLeftCheckWalled.position, BottomLeftCheckWalled.position);
-        IsLeftWalled = Physics2D.OverlapArea(TopRightCheckWalled.position, BottomRightCheckWalled.position);
+        IsLeftWalled = Physics2D.OverlapArea(TopLeftCheckWalled.position, BottomLeftCheckWalled.position);
+        IsRightWalled = Physics2D.OverlapArea(TopRightCheckWalled.position, BottomRightCheckWalled.position);
         
         if (Move > 0)
         {
