@@ -27,11 +27,15 @@ public class PlayerMovement : MonoBehaviour
     public bool IsRightWalled;
     public bool GotShield ;
     public bool isWallJumping;
+    public bool isWalking;
+
+    private float Move;
 
 
     void Start()
     {
         isWallJumping = false;
+        isWalking = false;
         GotShield = false;
         respawnPoint = transform.position;
 
@@ -58,31 +62,50 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        
+        isWalking = false;
+        Move = Input.GetAxis("Horizontal");
         IsGrounded = Physics2D.OverlapArea(LeftCheckGrounbed.position, RightCheckGrounded.position);
-        IsLeftWalled = Physics2D.OverlapArea(TopLeftCheckWalled.position, BottomLeftCheckWalled.position);
-        IsRightWalled = Physics2D.OverlapArea(TopRightCheckWalled.position, BottomRightCheckWalled.position);
-
-        if (Input.GetKey(leftKey))
+        IsRightWalled = Physics2D.OverlapArea(TopLeftCheckWalled.position, BottomLeftCheckWalled.position);
+        IsLeftWalled = Physics2D.OverlapArea(TopRightCheckWalled.position, BottomRightCheckWalled.position);
+        
+        if (Move > 0)
         {
-            if (IsLeftWalled == false && isWallJumping == false)
+            gameObject.transform.localScale = new Vector3(1, 1, 1);
+        }
+        if (Move < 0)
+        {
+            gameObject.transform.localScale = new Vector3(-1, 1, 1);
+        }
+
+        if (IsLeftWalled == false && isWallJumping == false)
+        {
+            if (Input.GetKey(leftKey))
             {
                 transform.Translate(Vector2.left * moovSpeed * Time.deltaTime);
+                gameObject.GetComponent<Animator>().Play("walk");
+                isWalking = true;
             }
         }
-        if (Input.GetKey(rightKey))
+        if (IsRightWalled == false && isWallJumping == false)
         {
-            if (IsRightWalled == false && isWallJumping == false)
+            if (Input.GetKey(rightKey))
             {
                 transform.Translate(Vector2.right * moovSpeed * Time.deltaTime);
+                gameObject.GetComponent<Animator>().Play("walk");
+                isWalking = true;
             }
         }
+
         if (IsGrounded)
         {
             isWallJumping = false;
             if (Input.GetKeyDown(upKey))
             {
                 rgbd.AddForce(Vector2.up * jumpForce);
+            }
+            if (isWalking == false)
+            {
+                gameObject.GetComponent<Animator>().Play("IDE");
             }
         }
         else if (IsLeftWalled)
@@ -92,15 +115,17 @@ public class PlayerMovement : MonoBehaviour
                 isWallJumping = true;
                 rgbd.AddForce(Vector2.up * jumpForce * 0.75f);
                 rgbd.AddForce(Vector2.right * jumpForce);
+                gameObject.GetComponent<Animator>().Play("walk");
             }       
         }
         else if (IsRightWalled)
         {
-            if(Input.GetKeyDown(upKey))
+            if (Input.GetKeyDown(upKey))
             {
                 isWallJumping = true;
                 rgbd.AddForce(Vector2.up * jumpForce * 0.75f);
                 rgbd.AddForce(Vector2.left * jumpForce);
+                gameObject.GetComponent<Animator>().Play("walk");
             }
         }
     }
