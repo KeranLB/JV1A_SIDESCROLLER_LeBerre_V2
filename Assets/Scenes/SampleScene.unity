@@ -5451,7 +5451,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20405e291002e7a4d81ee8cc63f7a2be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moovSpeed: 6
+  moovSpeed: 2
   LeftPoint: {fileID: 1251876084}
   RightPoint: {fileID: 1806694772}
 --- !u!70 &1194207203

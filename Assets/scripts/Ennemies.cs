@@ -14,6 +14,7 @@ public class Ennemies : MonoBehaviour
     private bool goLeft;
     private bool goRight;
 
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,6 +38,15 @@ public class Ennemies : MonoBehaviour
 void Update()
     {
         posx = transform.position.x;
+
+        if (goLeft)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        if (goRight)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
 
         if (posx < LeftPointPos)
         {
