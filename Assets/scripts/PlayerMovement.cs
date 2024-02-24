@@ -15,13 +15,19 @@ public class PlayerMovement : MonoBehaviour
 
     public Transform TopRightCheckWalled;
     public Transform BottomRightCheckWalled;
-    
+
+    public SpriteRenderer hearthA;
+    public SpriteRenderer hearthB;
+    public SpriteRenderer hearthC;
+    public SpriteRenderer shield;
+
     public float jumpForce;
     public float moovSpeed;
 
     public Vector3 respawnPoint;
 
     // private variables
+    public int vie;
     public bool IsGrounded;
     public bool IsLeftWalled;
     public bool IsRightWalled;
@@ -29,16 +35,28 @@ public class PlayerMovement : MonoBehaviour
     public bool isWallJumping;
     public bool isWalking;
 
+    public bool blocRight;
+    public bool blocLeft;
+
+    public bool kill;
+
     private float Move;
 
 
     void Start()
     {
+        vie = 3;
+        kill = false;
         isWallJumping = false;
         isWalking = false;
         GotShield = false;
         respawnPoint = transform.position;
-
+        blocLeft = false;
+        blocRight = false;
+        shield.gameObject.SetActive(false);
+        hearthA.gameObject.SetActive(true);
+        hearthB.gameObject.SetActive(true);
+        hearthC.gameObject.SetActive(true);
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -47,27 +65,95 @@ public class PlayerMovement : MonoBehaviour
         {
             if (GetComponent<PlayerMovement>().GotShield == false)
             {
-                transform.position = respawnPoint;
+                vie--;
+                if (vie < 1)
+                {
+                    transform.position = new Vector3(124, 100, 0);
+                }
+                else
+                {
+                    transform.position = respawnPoint;
+                }
+            }
+            if (GetComponent<PlayerMovement>().GotShield == true)
+            {
+                kill = true;
             }
         }
         if (collision.CompareTag("Kill"))
         {
-            transform.position = respawnPoint;
+            vie--;
+            if (vie < 1)
+            {
+                transform.position = new Vector3(124, 100, 0);
+            }
+            else
+            {
+                transform.position = respawnPoint;
+            }
+
         }
-        else if (collision.CompareTag("Checkpoint"))
+
+        if (collision.CompareTag("Checkpoint"))
         {
             respawnPoint = collision.transform.position;
+        }
+
+        else if (collision.CompareTag("wayout"))
+        {
+            if (kill == true)
+            {
+                transform.position = new Vector3(100, 100, 0);
+            }
+        }
+
+        if (collision.CompareTag("hearth"))
+        {
+            if (vie < 3)
+            {
+                vie++;
+                Destroy(collision.gameObject);
+            }
         }
     }
 
     void Update()
     {
+        if (GotShield == true)
+        {
+            shield.gameObject.SetActive(true);
+        }
+        if (vie == 3)
+        {
+            hearthA.gameObject.SetActive(true);
+            hearthB.gameObject.SetActive(true);
+            hearthC.gameObject.SetActive(true);
+        }
+        if (vie == 2)
+        {
+            hearthA.gameObject.SetActive(true);
+            hearthB.gameObject.SetActive(true);
+            hearthC.gameObject.SetActive(false);
+        }
+        if (vie == 1)
+        {
+            hearthA.gameObject.SetActive(true);
+            hearthB.gameObject.SetActive(false);
+            hearthC.gameObject.SetActive(false);
+        }
+        if (vie == 0)
+        {
+            hearthA.gameObject.SetActive(false);
+            hearthB.gameObject.SetActive(false);
+            hearthC.gameObject.SetActive(false);
+        }
+
         isWalking = false;
         Move = Input.GetAxis("Horizontal");
         IsGrounded = Physics2D.OverlapArea(LeftCheckGrounbed.position, RightCheckGrounded.position);
         IsLeftWalled = Physics2D.OverlapArea(TopLeftCheckWalled.position, BottomLeftCheckWalled.position);
         IsRightWalled = Physics2D.OverlapArea(TopRightCheckWalled.position, BottomRightCheckWalled.position);
-        
+
         if (Move > 0)
         {
             gameObject.transform.localScale = new Vector3(1, 1, 1);
@@ -77,23 +163,34 @@ public class PlayerMovement : MonoBehaviour
             gameObject.transform.localScale = new Vector3(-1, 1, 1);
         }
 
-        if (IsLeftWalled == false && isWallJumping == false)
+        if (IsRightWalled == false)
         {
-            if (Input.GetKey(leftKey))
-            {
-                transform.Translate(Vector2.left * moovSpeed * Time.deltaTime);
-                gameObject.GetComponent<Animator>().Play("walk");
-                isWalking = true;
-            }
+            blocLeft = false;
+            blocRight = false;
         }
+
         if (IsRightWalled == false && isWallJumping == false)
         {
-            if (Input.GetKey(rightKey))
+            if (blocRight == false)
             {
-                transform.Translate(Vector2.right * moovSpeed * Time.deltaTime);
-                gameObject.GetComponent<Animator>().Play("walk");
-                isWalking = true;
+                if (Input.GetKey(rightKey))
+                {
+                    transform.Translate(Vector2.right * moovSpeed * Time.deltaTime);
+                    gameObject.GetComponent<Animator>().Play("walk");
+                    isWalking = true;
+                }
             }
+
+            if (blocRight == false)
+            {
+                if (Input.GetKey(leftKey))
+                {
+                    transform.Translate(Vector2.left * moovSpeed * Time.deltaTime);
+                    gameObject.GetComponent<Animator>().Play("walk");
+                    isWalking = true;
+                }
+            }
+
         }
 
         if (IsGrounded)
@@ -108,25 +205,41 @@ public class PlayerMovement : MonoBehaviour
                 gameObject.GetComponent<Animator>().Play("IDE");
             }
         }
-        else if (IsLeftWalled)
-        {
-            if (Input.GetKeyDown(upKey))
-            {
-                isWallJumping = true;
-                rgbd.AddForce(Vector2.up * jumpForce * 0.75f);
-                rgbd.AddForce(Vector2.right * jumpForce);
-                gameObject.GetComponent<Animator>().Play("walk");
-            }       
-        }
+
         else if (IsRightWalled)
         {
-            if (Input.GetKeyDown(upKey))
+            if (gameObject.transform.localScale == new Vector3(1, 1, 1))
             {
-                isWallJumping = true;
-                rgbd.AddForce(Vector2.up * jumpForce * 0.75f);
-                rgbd.AddForce(Vector2.left * jumpForce);
-                gameObject.GetComponent<Animator>().Play("walk");
+                blocRight = true;
             }
+
+            if (gameObject.transform.localScale == new Vector3(-1, 1, 1))
+            {
+                blocLeft = true;
+            }
+
+            if (blocRight == true)
+            {
+                if (Input.GetKeyDown(upKey))
+                {
+                    isWallJumping = true;
+                    rgbd.AddForce(Vector2.up * jumpForce * 0.75f);
+                    rgbd.AddForce(Vector2.left * jumpForce);
+                    gameObject.GetComponent<Animator>().Play("walk");
+                }
+            }
+
+            if (blocLeft == true)
+            {
+                if (Input.GetKeyDown(upKey))
+                {
+                    isWallJumping = true;
+                    rgbd.AddForce(Vector2.up * jumpForce * 0.75f);
+                    rgbd.AddForce(Vector2.right * jumpForce);
+                    gameObject.GetComponent<Animator>().Play("walk");
+                }
+            }
+
         }
     }
 }

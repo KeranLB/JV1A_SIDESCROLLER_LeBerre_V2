@@ -8,6 +8,8 @@ TagManager:
   - Kill
   - Checkpoint
   - Ennemie
+  - wayout
+  - hearth
   layers:
   - Default
   - TransparentFX
